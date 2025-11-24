@@ -5,103 +5,128 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #333;
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   padding: 20px;
+  color: #333;
 }
 
 .container {
+  max-width: 1200px;
+  margin: 0 auto;
   background: white;
-  border-radius: 16px;
+  border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  max-width: 900px;
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
+  overflow: hidden;
 }
 
 header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 40px;
   text-align: center;
-  border-bottom: 2px solid #f0f0f0;
-  padding-bottom: 20px;
 }
 
 header h1 {
   font-size: 2.5em;
-  color: #667eea;
   margin-bottom: 10px;
+  font-weight: 700;
 }
 
 header p {
-  color: #666;
   font-size: 1.1em;
+  opacity: 0.9;
 }
 
-main {
+.main-content {
+  padding: 30px;
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 25px;
 }
 
 .input-section {
   background: #f8f9fa;
   padding: 25px;
   border-radius: 12px;
-  border: 1px solid #e9ecef;
+  border: 2px solid #e9ecef;
 }
 
-.input-group {
+.input-wrapper {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
-.input-group label {
-  font-weight: 600;
-  color: #495057;
-  font-size: 1.1em;
-}
-
-.input-group input {
-  padding: 12px 16px;
+#inp {
+  flex: 1;
+  padding: 15px 20px;
   border: 2px solid #dee2e6;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 1em;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+  font-family: 'Courier New', monospace;
 }
 
-.input-group input:focus {
+#inp:focus {
   outline: none;
   border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
 
-.input-group button {
-  padding: 12px 24px;
+.send-btn {
+  padding: 15px 30px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 1em;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
-.input-group button:hover {
+.send-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
 }
 
-.input-group button:active {
+.send-btn:active {
   transform: translateY(0);
+}
+
+.quick-commands {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.label {
+  font-weight: 600;
+  color: #495057;
+}
+
+.quick-btn {
+  padding: 8px 16px;
+  background: white;
+  border: 2px solid #dee2e6;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.2s ease;
+  color: #495057;
+}
+
+.quick-btn:hover {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
 }
 
 .output-section {
@@ -110,49 +135,146 @@ main {
   gap: 15px;
 }
 
-.output-section h2 {
+.output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.output-header h2 {
   color: #495057;
   font-size: 1.5em;
+}
+
+.clear-btn {
+  padding: 8px 16px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+  background: #c82333;
+  transform: translateY(-1px);
 }
 
 .output-box {
   background: #1e1e1e;
   color: #d4d4d4;
   padding: 20px;
-  border-radius: 8px;
-  min-height: 300px;
-  max-height: 500px;
+  border-radius: 10px;
+  min-height: 400px;
+  max-height: 600px;
   overflow-y: auto;
   font-family: 'Courier New', monospace;
-  font-size: 0.9em;
+  font-size: 0.95em;
   line-height: 1.6;
   white-space: pre-wrap;
   word-wrap: break-word;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .output-box::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 .output-box::-webkit-scrollbar-track {
   background: #2d2d2d;
-  border-radius: 4px;
+  border-radius: 5px;
 }
 
 .output-box::-webkit-scrollbar-thumb {
   background: #555;
-  border-radius: 4px;
+  border-radius: 5px;
 }
 
 .output-box::-webkit-scrollbar-thumb:hover {
   background: #666;
 }
 
-footer {
-  text-align: center;
-  padding-top: 20px;
-  border-top: 2px solid #f0f0f0;
-  color: #999;
-  font-size: 0.9em;
+.info-section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
 }
 
+details {
+  cursor: pointer;
+}
+
+details summary {
+  font-weight: 600;
+  color: #495057;
+  font-size: 1.1em;
+  padding: 10px;
+  list-style: none;
+}
+
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details summary::before {
+  content: "▶ ";
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.commands-list {
+  margin-top: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.command-group {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.command-group h4 {
+  color: #667eea;
+  margin-bottom: 10px;
+  font-size: 1em;
+}
+
+.command-group code {
+  display: inline-block;
+  background: #f8f9fa;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  margin: 4px 4px 4px 0;
+  color: #e83e8c;
+  border: 1px solid #e9ecef;
+}
+
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 2em;
+  }
+  
+  .input-wrapper {
+    flex-direction: column;
+  }
+  
+  .send-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .commands-list {
+    grid-template-columns: 1fr;
+  }
+}

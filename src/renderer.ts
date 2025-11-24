@@ -1,37 +1,82 @@
-// Renderer process code
-// This file can be used for any client-side TypeScript code
+// Type declaration for api
+export {};
 
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('Renderer process loaded');
-
-  // Set up Python output listener
-  if (window.electronAPI) {
-    window.electronAPI.onPythonOutput((data: string) => {
-      const outputDiv = document.getElementById('python-output');
-      if (outputDiv) {
-        outputDiv.textContent += data;
-        outputDiv.scrollTop = outputDiv.scrollHeight;
-      }
-    });
+declare global {
+  interface Window {
+    api: {
+      send: (txt: string) => Promise<{ success: boolean; error?: string }>;
+      onOutput: (cb: (data: string) => void) => void;
+    };
   }
+}
 
-  // Handle form submission
-  const form = document.getElementById('python-form') as HTMLFormElement;
-  const input = document.getElementById('python-input') as HTMLInputElement;
+const inp = document.getElementById("inp") as HTMLInputElement;
+const btn = document.getElementById("btn") as HTMLButtonElement;
+const out = document.getElementById("out") as HTMLElement;
+const clearBtn = document.getElementById("clear-btn") as HTMLButtonElement;
 
-  if (form && input && window.electronAPI) {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const value = input.value.trim();
-      if (value) {
-        const result = await window.electronAPI.sendToPython(value);
-        if (result.success) {
-          input.value = '';
-        } else {
-          console.error('Failed to send to Python:', result.error);
-        }
-      }
-    });
+// Clear output
+clearBtn.onclick = () => {
+  out.textContent = "";
+};
+
+// Quick command buttons
+document.querySelectorAll('.quick-btn').forEach(button => {
+  button.addEventListener('click', () => {
+    const cmd = button.getAttribute('data-cmd');
+    if (cmd) {
+      inp.value = cmd;
+      sendCommand(cmd);
+    }
+  });
+});
+
+// Send command function
+async function sendCommand(text: string): Promise<void> {
+  if (!text.trim()) return;
+  
+  // Show user input
+  out.textContent += `> ${text}\n`;
+  out.scrollTop = out.scrollHeight;
+  
+  // Send to Python
+  try {
+    const result = await window.api.send(text);
+    if (!result.success) {
+      out.textContent += `[ERROR] ${result.error || "Failed to send command"}\n`;
+      out.scrollTop = out.scrollHeight;
+    }
+  } catch (error: any) {
+    out.textContent += `[ERROR] ${error.message || "Failed to send command"}\n`;
+    out.scrollTop = out.scrollHeight;
+  }
+  inp.value = "";
+}
+
+// Main send button
+btn.onclick = () => {
+  const text = inp.value.trim();
+  if (!text) return;
+  sendCommand(text);
+};
+
+// Enter key support
+inp.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    const text = inp.value.trim();
+    if (text) {
+      sendCommand(text);
+    }
   }
 });
 
+// Listen for Python output
+window.api.onOutput((txt: string) => {
+  out.textContent += txt;
+  out.scrollTop = out.scrollHeight;
+});
+
+// Focus input on load
+window.addEventListener('load', () => {
+  inp.focus();
+});

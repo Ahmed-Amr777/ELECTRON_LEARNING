@@ -4,10 +4,8 @@
   "description": "Electron app with Python integration",
   "main": "dist/main.js",
   "scripts": {
-    "build": "tsc",
-    "start": "npm run build && electron .",
-    "dev": "npm run build && electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json",
+    "start": "npm run build && electron ."
   },
   "keywords": ["electron", "python", "typescript"],
   "author": "",

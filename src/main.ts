@@ -1,82 +1,105 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
-import * as path from 'path';
-import { spawn } from 'child_process';
+import { app, BrowserWindow, ipcMain } from "electron";
+import path from "path";
+import { spawn } from "child_process";
 
-let mainWindow: BrowserWindow | null = null;
-let pythonProcess: ReturnType<typeof spawn> | null = null;
+let win: BrowserWindow | null = null;
+let py: ReturnType<typeof spawn> | null = null;
 
-function createWindow(): void {
-  mainWindow = new BrowserWindow({
+function createWindow() {
+  win = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      nodeIntegration: false,
+      preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
+      nodeIntegration: false,
     },
   });
 
-  mainWindow.loadFile(path.join(__dirname, '../frontend/index.html'));
+  win.loadFile(path.join(__dirname, "../frontend/index.html"));
 
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
-}
-
-function startPythonEngine(): void {
-  const pythonExecutable = process.platform === 'win32' 
-    ? 'python.exe' 
-    : 'python';
-  const pythonPath = path.join(__dirname, '../python/venv', 
-    process.platform === 'win32' ? 'Scripts' : 'bin', pythonExecutable);
-  const scriptPath = path.join(__dirname, '../python/engine.py');
-
-  pythonProcess = spawn(pythonPath, [scriptPath], {
-    stdio: ['pipe', 'pipe', 'pipe'],
+  // Start Python with unbuffered output
+  py = spawn("python", ["-u", path.join(__dirname, "../python/engine.py")], {
+    stdio: ['pipe', 'pipe', 'pipe']
   });
 
-  pythonProcess.stdout?.on('data', (data) => {
-    console.log(`Python stdout: ${data}`);
-    if (mainWindow) {
-      mainWindow.webContents.send('python-output', data.toString());
+  // Forward Python output to renderer
+  py.stdout?.on("data", (data) => {
+    const text = data.toString();
+    console.log("NODE GOT:", JSON.stringify(text));
+    if (win && !win.isDestroyed()) {
+      win.webContents.send("py-out", text);
     }
   });
 
-  pythonProcess.stderr?.on('data', (data) => {
-    console.error(`Python stderr: ${data}`);
-  });
-
-  pythonProcess.on('close', (code) => {
-    console.log(`Python process exited with code ${code}`);
-  });
-}
-
-app.whenReady().then(() => {
-  createWindow();
-  startPythonEngine();
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+  py.stderr?.on("data", (data) => {
+    const errorText = data.toString();
+    console.error("Python stderr:", errorText);
+    if (win && !win.isDestroyed()) {
+      win.webContents.send("py-out", `[ERROR] ${errorText}`);
     }
   });
-});
+
+  py.on("error", (error) => {
+    console.error("Failed to start Python:", error);
+    if (win && !win.isDestroyed()) {
+      win.webContents.send("py-out", `[ERROR] Failed to start Python: ${error.message}\n`);
+    }
+  });
+
+  py.on("exit", (code, signal) => {
+    console.error(`Python process exited with code ${code}, signal ${signal}`);
+    if (win && !win.isDestroyed()) {
+      win.webContents.send("py-out", `[ERROR] Python process exited unexpectedly (code: ${code})\n`);
+    }
+  });
+}
 
 app.on('window-all-closed', () => {
-  if (pythonProcess) {
-    pythonProcess.kill();
+  if (py) {
+    py.kill();
   }
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-// Handle IPC communication
-ipcMain.handle('send-to-python', async (_event, data: string) => {
-  if (pythonProcess && pythonProcess.stdin) {
-    pythonProcess.stdin.write(data + '\n');
-    return { success: true };
+// Receive text from renderer → send to Python
+ipcMain.handle("py-in", async (_event, text: string) => {
+  if (!py) {
+    console.error("Python process is null");
+    return { success: false, error: "Python process not started" };
   }
-  return { success: false, error: 'Python process not available' };
+  
+  if (!py.stdin) {
+    console.error("Python stdin is null");
+    return { success: false, error: "Python stdin not available" };
+  }
+  
+  if (py.killed) {
+    console.error("Python process was killed");
+    return { success: false, error: "Python process was killed" };
+  }
+  
+  try {
+    const command = text.trim() + "\n";
+    console.log("Sending to Python:", JSON.stringify(command));
+    const written = py.stdin.write(command);
+    if (!written && py.stdin) {
+      console.warn("Write buffer is full, waiting for drain");
+      await new Promise((resolve) => {
+        if (py && py.stdin) {
+          py.stdin.once("drain", resolve);
+        } else {
+          resolve(undefined);
+        }
+      });
+    }
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error writing to Python stdin:", error);
+    return { success: false, error: error.message || "Failed to send command" };
+  }
 });
 
+app.whenReady().then(createWindow);

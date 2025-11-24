@@ -3,44 +3,89 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Electron Learning - Python Integration</title>
+  <title>Python Engine - Electron App</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Electron + Python Integration</h1>
-      <p>Send commands to Python engine and see the output</p>
+      <h1>🐍 Python Engine</h1>
+      <p>Interactive Python command processor</p>
     </header>
 
-    <main>
+    <div class="main-content">
       <section class="input-section">
-        <form id="python-form">
-          <div class="input-group">
-            <label for="python-input">Enter command:</label>
-            <input 
-              type="text" 
-              id="python-input" 
-              placeholder="Type a Python command or data..."
-              autocomplete="off"
-            >
-            <button type="submit">Send</button>
-          </div>
-        </form>
+        <div class="input-wrapper">
+          <input 
+            type="text" 
+            id="inp" 
+            placeholder="Type a command (e.g., 'help', 'eval 2+2', 'math add 10 20')..."
+            autocomplete="off"
+          />
+          <button id="btn" class="send-btn">
+            <span>Send</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="quick-commands">
+          <span class="label">Quick commands:</span>
+          <button class="quick-btn" data-cmd="help">Help</button>
+          <button class="quick-btn" data-cmd="eval 2+2">Eval</button>
+          <button class="quick-btn" data-cmd="math add 10 20">Math</button>
+          <button class="quick-btn" data-cmd="date now">Date</button>
+          <button class="quick-btn" data-cmd="str upper hello">String</button>
+          <button class="quick-btn" data-cmd="api get https://api.github.com/users/octocat">API</button>
+        </div>
       </section>
 
       <section class="output-section">
-        <h2>Python Output</h2>
-        <div id="python-output" class="output-box"></div>
+        <div class="output-header">
+          <h2>Output</h2>
+          <button id="clear-btn" class="clear-btn">Clear</button>
+        </div>
+        <div id="out" class="output-box"></div>
       </section>
-    </main>
 
-    <footer>
-      <p>Electron Learning Project</p>
-    </footer>
+      <section class="info-section">
+        <details>
+          <summary>📚 Available Commands</summary>
+          <div class="commands-list">
+            <div class="command-group">
+              <h4>Basic</h4>
+              <code>help</code> <code>echo &lt;text&gt;</code> <code>eval &lt;expr&gt;</code> <code>exec &lt;code&gt;</code>
+            </div>
+            <div class="command-group">
+              <h4>Math</h4>
+              <code>math add &lt;a&gt; &lt;b&gt;</code> <code>math sqrt &lt;n&gt;</code> <code>math sin &lt;angle&gt;</code>
+            </div>
+            <div class="command-group">
+              <h4>String</h4>
+              <code>str len &lt;text&gt;</code> <code>str upper &lt;text&gt;</code> <code>str reverse &lt;text&gt;</code>
+            </div>
+            <div class="command-group">
+              <h4>Date/Time</h4>
+              <code>date now</code> <code>time now</code> <code>datetime now</code>
+            </div>
+            <div class="command-group">
+              <h4>List</h4>
+              <code>list create &lt;items&gt;</code> <code>list sum &lt;list&gt;</code>
+            </div>
+            <div class="command-group">
+              <h4>File</h4>
+              <code>file read &lt;path&gt;</code> <code>file exists &lt;path&gt;</code>
+            </div>
+            <div class="command-group">
+              <h4>API</h4>
+              <code>api get &lt;url&gt;</code> <code>api post &lt;url&gt; [data]</code>
+            </div>
+          </div>
+        </details>
+      </section>
+    </div>
   </div>
 
-  <script src="../dist/renderer.js"></script>
+  <script type="module" src="../dist/renderer.js"></script>
 </body>
 </html>
-
