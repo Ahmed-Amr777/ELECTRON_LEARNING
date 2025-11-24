@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Electron Learning - Python Integration</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Electron + Python Integration</h1>
+      <p>Send commands to Python engine and see the output</p>
+    </header>
+
+    <main>
+      <section class="input-section">
+        <form id="python-form">
+          <div class="input-group">
+            <label for="python-input">Enter command:</label>
+            <input 
+              type="text" 
+              id="python-input" 
+              placeholder="Type a Python command or data..."
+              autocomplete="off"
+            >
+            <button type="submit">Send</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="output-section">
+        <h2>Python Output</h2>
+        <div id="python-output" class="output-box"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Electron Learning Project</p>
+    </footer>
+  </div>
+
+  <script src="../dist/renderer.js"></script>
+</body>
+</html>
+
