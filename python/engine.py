@@ -23,6 +23,7 @@ def process_command(command: str) -> str:
         
         # Example: Echo command
         if command.startswith('echo '):
+            print(f"Echo: {command[5:]}")
             return f"Echo: {command[5:]}\n"
         
         # Example: Evaluate Python expression
