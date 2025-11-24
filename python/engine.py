@@ -1,80 +1,52 @@
 #!/usr/bin/env python3
 """
-Python Engine for Electron Application
-Handles communication with the Electron main process via stdin/stdout
+Enhanced Python Engine for Electron Application
+Supports multiple command types and operations
 """
 
 import sys
-import json
 import traceback
 
-def process_command(command: str) -> str:
-    """
-    Process a command received from Electron and return a response.
-    
-    Args:
-        command: The command string received from stdin
-        
-    Returns:
-        A response string to send back
-    """
-    try:
-        command = command.strip()
-        
-        # Example: Echo command
-        if command.startswith('echo '):
-            print(f"Echo: {command[5:]}")
-            return f"Echo: {command[5:]}\n"
-        
-        # Example: Evaluate Python expression
-        elif command.startswith('eval '):
-            try:
-                expr = command[5:]
-                result = eval(expr)
-                return f"Result: {result}\n"
-            except Exception as e:
-                return f"Error: {str(e)}\n"
-        
-        # Example: Execute Python code
-        elif command.startswith('exec '):
-            try:
-                code = command[5:]
-                exec(code)
-                return "Code executed successfully\n"
-            except Exception as e:
-                return f"Error: {str(e)}\n"
-        
-        # Default: Just echo back
-        else:
-            return f"Received: {command}\n"
-    
-    except Exception as e:
-        return f"Error processing command: {str(e)}\n{traceback.format_exc()}\n"
+# Import core functionality
+from core import safe_print, process_command
 
 def main():
-    """Main loop to read from stdin and write to stdout"""
-    print("Python engine started. Ready to receive commands.", flush=True)
+    """Main loop with async command processing"""
+    # Set stdout encoding to UTF-8 to handle Unicode characters on Windows
+    if hasattr(sys.stdout, 'reconfigure'):
+        try:
+            sys.stdout.reconfigure(encoding='utf-8')
+        except (AttributeError, ValueError):
+            pass
+    
+    safe_print("Python Engine Ready! Type 'help' for commands.\n")
     
     try:
-        while True:
-            # Read from stdin
-            line = sys.stdin.readline()
-            
+        for line in sys.stdin:
             if not line:
-                break
+                continue
             
-            # Process the command
-            response = process_command(line)
+            # Remove trailing newline
+            line = line.rstrip('\n\r')
+            if not line:
+                continue
             
-            # Write response to stdout
-            print(response, end='', flush=True)
+            # Process command (async for blocking operations)
+            try:
+                response = process_command(line)
+                if response:
+                    safe_print(response)
+                else:
+                    # Even if no response, acknowledge command was received
+                    safe_print("")
+            except Exception as e:
+                safe_print(f"Error processing command: {str(e)}\n{traceback.format_exc()}\n")
     
     except KeyboardInterrupt:
-        print("\nPython engine shutting down...", flush=True)
+        safe_print("\nPython engine shutting down...\n")
     except Exception as e:
-        print(f"Fatal error: {str(e)}\n{traceback.format_exc()}", flush=True)
+        safe_print(f"Fatal error: {str(e)}\n{traceback.format_exc()}\n")
         sys.exit(1)
 
 if __name__ == '__main__':
     main()
-
